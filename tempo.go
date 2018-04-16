@@ -1,6 +1,11 @@
 package tempo
 
+import (
+	"sync"
+)
+
 type TimeSeries struct {
+	mutex  sync.Mutex
 	Opened []byte
 	Closed [][]byte
 

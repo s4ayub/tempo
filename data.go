@@ -13,6 +13,11 @@ const (
 
 // EncodeData compresses and stores new data to a byte-stream of compressed data
 func (ts *TimeSeries) encodeData(data uint64) {
+
+	// Should this be done here or at the higher level function?
+	ts.mutex.Lock()
+	defer ts.mutex.Unlock()
+
 	if ts.LatestData == 0 {
 		dataBytes := make([]byte, 8)
 		binary.LittleEndian.PutUint64(dataBytes, data)
