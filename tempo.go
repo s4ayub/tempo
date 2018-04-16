@@ -4,7 +4,8 @@ type TimeSeries struct {
 	Opened []byte
 	Closed [][]byte
 
-	LatestTime       []byte
-	LatestValue      []byte
-	SecondLatestTime []byte
+	LatestTime       uint64
+	LatestData       uint64
+	LatestDataXor    uint64
+	SecondLatestTime uint64
 }
