@@ -13,12 +13,13 @@ const (
 
 // EncodeData compresses and stores new data to a byte-stream of compressed data
 func (ts *TimeSeries) encodeData(data uint64) {
-	if ts.LatestData == 0 {
+	if ts.Opened.Length == 0 {
 		dataBytes := make([]byte, 8)
 		binary.LittleEndian.PutUint64(dataBytes, data)
 
-		ts.Opened = append(ts.Opened, dataBytes...)
+		ts.Opened.Stream = append(ts.Opened.Stream, dataBytes...)
 		ts.LatestData = data
+		ts.Opened.Length++
 
 		return
 	}
@@ -26,10 +27,11 @@ func (ts *TimeSeries) encodeData(data uint64) {
 	xor := data ^ ts.LatestData
 
 	if xor == 0 {
-		ts.Opened = append(ts.Opened, 0)
+		ts.Opened.Stream = append(ts.Opened.Stream, 0)
 
 		ts.LatestData = data
 		ts.LatestDataXor = xor
+		ts.Opened.Length++
 
 		return
 	}
@@ -41,11 +43,12 @@ func (ts *TimeSeries) encodeData(data uint64) {
 	mxor := xor >> uint(tz)
 
 	if lz == bits.LeadingZeros64(ts.LatestDataXor) && tz == bits.TrailingZeros64(ts.LatestDataXor) {
-		ts.Opened = append(ts.Opened, bInfo)
-		putUint64(&ts.Opened, mxor)
+		ts.Opened.Stream = append(ts.Opened.Stream, bInfo)
+		putUint64(&ts.Opened.Stream, mxor)
 
 		ts.LatestDataXor = xor
 		ts.LatestData = data
+		ts.Opened.Length++
 
 		return
 	}
@@ -53,18 +56,31 @@ func (ts *TimeSeries) encodeData(data uint64) {
 	bInfo |= byte(controlBit)
 	mxorLength := byte(64 - lz - tz)
 
-	ts.Opened = append(ts.Opened, bInfo)
-	ts.Opened = append(ts.Opened, mxorLength)
-	putUint64(&ts.Opened, mxor)
+	ts.Opened.Stream = append(ts.Opened.Stream, bInfo)
+	ts.Opened.Stream = append(ts.Opened.Stream, mxorLength)
+	putUint64(&ts.Opened.Stream, mxor)
 
 	ts.LatestDataXor = xor
 	ts.LatestData = data
+	ts.Opened.Length++
 }
 
 func putUint64(buf *[]byte, val uint64) {
 	byteLength := 8 - (bits.LeadingZeros64(val) >> 3)
 	b := make([]byte, byteLength)
 
+	// Parse val byte-by-byte
+	for i := 0; i < byteLength; i++ {
+		b[i] = byte(val >> (uint(i) << 3))
+	}
+
+	*buf = append(*buf, b...)
+}
+
+func putInt64(buf *[]byte, val int64, byteLength int) {
+	b := make([]byte, byteLength)
+
+	// Parse val byte-by-byte
 	for i := 0; i < byteLength; i++ {
 		b[i] = byte(val >> (uint(i) << 3))
 	}
