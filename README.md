@@ -28,8 +28,8 @@ func main() {
 ```
 
 # To do:
-[] Lay out the TimeSeries struct to encase timestamps and data in a single byte stream
-[] Implement and test XOR encoding for data values
-[] Implement and test delta-of-delta encoding for timestamps
-[] Write a decoder to return decoded blocks of time series data
-[] Build the TimeSeriesMap structure which will abstract away the TimeSeries struct
+- [ ] Lay out the TimeSeries struct to encase timestamps and data in a single byte stream
+- [ ] Implement and test XOR encoding for data values
+- [ ] Implement and test delta-of-delta encoding for timestamps
+- [ ] Write a decoder to return decoded blocks of time series data
+- [ ] Build the TimeSeriesMap structure which will abstract away the TimeSeries struct
