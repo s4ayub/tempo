@@ -12,7 +12,7 @@ const (
 )
 
 // EncodeData compresses and stores new data to a byte-stream of compressed data
-func (ts *TimeSeries) encodeData(data uint64) {
+func (ts *TimeSeries) dataEncode(data uint64) {
 	if ts.Opened.Length == 0 {
 		dataBytes := make([]byte, 8)
 		binary.LittleEndian.PutUint64(dataBytes, data)

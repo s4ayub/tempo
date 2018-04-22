@@ -8,7 +8,7 @@ import (
 
 func TestEncodeFirstValue(t *testing.T) {
 	ts := &TimeSeries{}
-	ts.encodeData(12)
+	ts.dataEncode(12)
 
 	expected := []byte{12, 0, 0, 0, 0, 0, 0, 0}
 
@@ -19,8 +19,8 @@ func TestEncodeFirstValue(t *testing.T) {
 
 func TestEncodeSameValues(t *testing.T) {
 	ts := &TimeSeries{}
-	ts.encodeData(12)
-	ts.encodeData(12)
+	ts.dataEncode(12)
+	ts.dataEncode(12)
 
 	expected := []byte{12, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -31,8 +31,8 @@ func TestEncodeSameValues(t *testing.T) {
 
 func TestEncodeDifferentValues(t *testing.T) {
 	ts := &TimeSeries{}
-	ts.encodeData(12)
-	ts.encodeData(24)
+	ts.dataEncode(12)
+	ts.dataEncode(24)
 
 	expected := []byte{12, 0, 0, 0, 0, 0, 0, 0, 251, 3, 5}
 
@@ -43,9 +43,9 @@ func TestEncodeDifferentValues(t *testing.T) {
 
 func TestEncodeDifferentValuesSameMeaningfulXORLength(t *testing.T) {
 	ts := &TimeSeries{}
-	ts.encodeData(12)
-	ts.encodeData(24)
-	ts.encodeData(12)
+	ts.dataEncode(12)
+	ts.dataEncode(24)
+	ts.dataEncode(12)
 
 	expected := []byte{12, 0, 0, 0, 0, 0, 0, 0, 251, 3, 5, 187, 5}
 
