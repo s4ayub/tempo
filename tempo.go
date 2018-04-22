@@ -1,11 +1,17 @@
 package tempo
 
 type TimeSeries struct {
-	Opened []byte
-	Closed [][]byte
+	Opened Block
+	Closed []Block
 
+	TimeHeader       uint64
 	LatestTime       uint64
 	LatestData       uint64
 	LatestDataXor    uint64
 	SecondLatestTime uint64
+}
+
+type Block struct {
+	Length int
+	Stream []byte
 }
