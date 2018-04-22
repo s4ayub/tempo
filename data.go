@@ -78,12 +78,7 @@ func putUint64(buf *[]byte, val uint64) {
 }
 
 func putInt64(buf *[]byte, val int64, byteLength int) {
-	b := make([]byte, byteLength)
-
-	// Parse val byte-by-byte
 	for i := 0; i < byteLength; i++ {
-		b[i] = byte(val >> (uint(i) << 3))
+		*buf = append(*buf, byte(val>>(uint(i)<<3)))
 	}
-
-	*buf = append(*buf, b...)
 }

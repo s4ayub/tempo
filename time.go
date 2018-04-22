@@ -5,68 +5,65 @@ import (
 )
 
 const (
-	range0     = 0
-	range64    = 1 << 7
-	range256   = 1 << 6
-	range2048  = 1 << 5
-	rangeOther = 1 << 4
+	range0     byte = 0
+	range64    byte = 1 << 7
+	range256   byte = 1 << 6
+	range2048  byte = 1 << 5
+	rangeOther byte = 1 << 4
 )
 
 // Maps time ranges to the number of bits used to store the time
 var timeBytes = map[byte]int{
 	range0:     0,
-	range64:    1,
-	range256:   2,
-	range2048:  2,
-	rangeOther: 4,
+	range64:    1, // when decoding, cast time as int8
+	range256:   2, // when decoding, cast time as int16
+	range2048:  2, // when decoding, cast time as int16
+	rangeOther: 4, // when decoding, cast time as int32
 }
 
-func (ts *TimeSeries) timeEncode(time uint64) {
+func (ts *TimeSeries) timeEncode(time int64) {
 	if ts.Opened.Length == 0 {
-		dod := ts.TimeHeader - time
+		dod := time - ts.TimeHeader
 		dodBytes := make([]byte, 2)
 		binary.LittleEndian.PutUint16(dodBytes, uint16(dod))
 
 		ts.Opened.Stream = append(ts.Opened.Stream, dodBytes...)
-		ts.SecondLatestTime = ts.LatestTime
+		ts.SecondLatestTime = ts.TimeHeader
 		ts.LatestTime = time
 
 		return
 	}
 
-	// No overflow because the lowest time denomination is ms, and we flush ~2hr
-	dod := int64(time-ts.LatestTime) - int64(ts.LatestTime-ts.SecondLatestTime)
+	dod := (time - ts.LatestTime) - (ts.LatestTime - ts.SecondLatestTime)
 
 	if dod == 0 {
 		ts.Opened.Stream = append(ts.Opened.Stream, 0)
 	} else if (-63 <= dod) && (dod <= 64) {
-		b := make([]byte, 1+timeBytes[range0])
-		bs := b[1:]
-		b[0] = range0
-		putInt64(&bs, dod, timeBytes[range0])
+		tagAndValue := make([]byte, 1)
+		tagAndValue[0] = range64
+		putInt64(&tagAndValue, dod, timeBytes[range64])
 
-		ts.Opened.Stream = append(ts.Opened.Stream, b...)
+		ts.Opened.Stream = append(ts.Opened.Stream, tagAndValue...)
+
 	} else if (-255 <= dod) && (dod <= 256) {
-		b := make([]byte, 1+timeBytes[range64])
-		bs := b[1:]
-		b[0] = range64
-		putInt64(&bs, dod, timeBytes[range64])
+		tagAndValue := make([]byte, 1)
+		tagAndValue[0] = range256
+		putInt64(&tagAndValue, dod, timeBytes[range256])
 
-		ts.Opened.Stream = append(ts.Opened.Stream, b...)
+		ts.Opened.Stream = append(ts.Opened.Stream, tagAndValue...)
+
 	} else if (-2047 <= dod) && (dod <= 2048) {
-		b := make([]byte, 1+timeBytes[range2048])
-		bs := b[1:]
-		b[0] = range2048
-		putInt64(&bs, dod, timeBytes[range2048])
+		tagAndValue := make([]byte, 1)
+		tagAndValue[0] = range2048
+		putInt64(&tagAndValue, dod, timeBytes[range2048])
 
-		ts.Opened.Stream = append(ts.Opened.Stream, b...)
+		ts.Opened.Stream = append(ts.Opened.Stream, tagAndValue...)
 	} else {
-		b := make([]byte, 1+timeBytes[rangeOther])
-		bs := b[1:]
-		b[0] = rangeOther
-		putInt64(&bs, dod, timeBytes[rangeOther])
+		tagAndValue := make([]byte, 1)
+		tagAndValue[0] = rangeOther
+		putInt64(&tagAndValue, dod, timeBytes[rangeOther])
 
-		ts.Opened.Stream = append(ts.Opened.Stream, b...)
+		ts.Opened.Stream = append(ts.Opened.Stream, tagAndValue...)
 	}
 
 	ts.SecondLatestTime = ts.LatestTime
