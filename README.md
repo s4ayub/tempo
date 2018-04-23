@@ -55,7 +55,7 @@ Timeseries encoding scheme:
     - Again, the compression ratio drops as unused bits are added.
     - [-255, 256] for example, requires only 9 bits but 16 bits are reserved.
 
-Example of an encoded timestamp entry:
+3) Example of an encoded timestamp entry
     - {Tag bits}{Value}
         - 'Tag bits' is the tag defining the number of bits the time value will use
         - 'Value'    is the actual delta-of-delta time value
@@ -71,12 +71,12 @@ Data encoding scheme:
         - LZ is encoded in GorillaDB, but it is not encoded in Tempo
         - These 6 bits would have been here regardless of whether we used it to store LZ
 
- 2) The control bit represents whether the length of the meaningful xor is reused
+2) The control bit represents whether the length of the meaningful xor is reused
     - In GorillaDB, this is an indicator for whether the LZ and the MXOR length is reusued
     - In Tempo, this is an indicator for whether the MXOR length is reused
         - The LZ is always in the first byte
 
- Example of an encoded data entry:
+3) Example of an encoded data entry
     - {Header}{MXOR length}{MXOR...}
         - 'Header'      is the byte containing the dissimilar bit, control bit, and LZ
         - 'MXOR length' is the number of bits used to store the MXOR
