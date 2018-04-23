@@ -27,13 +27,6 @@ func main() {
 }
 ```
 
-# To do:
-- [x] Lay out the TimeSeries struct to encase timestamps and data in a single byte stream
-- [x] Implement and test XOR encoding for data values
-- [x] Implement and test delta-of-delta encoding for timestamps
-- [ ] Write a decoder to return decoded blocks of time series data
-- [ ] Build the TimeSeriesMap structure which will abstract away the TimeSeries struct
-
 # Changes to the encoding scheme:
 Tempo stores its timestamps and data values in a single byte-stream (for now).
 The encoding schemes used by GorillaDB takes advantage of bit-level granularity.
@@ -82,3 +75,10 @@ Data encoding scheme:
         - 'MXOR length' is the number of bits used to store the MXOR
         - 'MXOR'        is the actual meaningful xor bits
         - Each { } item is 1 byte, but '...' represents a variable amount of bytes
+
+# To do:
+- [x] Lay out the TimeSeries struct to encase timestamps and data in a single byte stream
+- [x] Implement and test XOR encoding for data values
+- [x] Implement and test delta-of-delta encoding for timestamps
+- [ ] Write a decoder to return decoded blocks of time series data
+- [ ] Build the TimeSeriesMap structure which will abstract away the TimeSeries struct
